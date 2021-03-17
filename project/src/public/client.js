@@ -48,7 +48,14 @@ const App = (state) => {
         <main>
             ${RoverSelect(rovers.roverNames)}
             <section>
-                ${rovers.selected}
+                <h1>${rovers.selected}</h1>
+                ${
+                  rovers.selected
+                    ? rovers[rovers.selected.toLowerCase()].map((photo) =>
+                        RoverImage(photo.img_src)
+                      )
+                    : ''
+                }
             </section>
         </main>
         <footer></footer>
@@ -72,6 +79,10 @@ const RoverOption = (rover) => {
   return `<option ${
     isSelected ? 'selected' : ''
   } value=${rover}>${rover}</option>`;
+};
+
+const RoverImage = (url) => {
+  return `<img src=${url} />`;
 };
 
 const getCuriosityPhotos = () => {
