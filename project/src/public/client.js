@@ -6,6 +6,11 @@ let store = {
     opportunity: {},
     spirit: {},
   },
+  manifests: {
+    curiosity: {},
+    opportunity: {},
+    spirit: {},
+  },
 };
 
 // add our markup to the page
@@ -15,7 +20,7 @@ const updateStore = (store, newState) => {
   store = Object.assign(store, newState);
   render(root, store);
   initMenu();
-  //   debugger;
+  debugger;
 };
 
 const initMenu = () => {
@@ -26,12 +31,15 @@ const initMenu = () => {
 const menuActions = (e) => {
   if (e.target.value === 'Curiosity') {
     getCuriosityPhotos();
+    getCuriosityManifest();
   }
   if (e.target.value === 'Opportunity') {
     getOpportunityPhotos();
+    getOpportunityManifest();
   }
   if (e.target.value === 'Spirit') {
     getSpiritPhotos();
+    getSpiritManifest();
   }
 };
 
@@ -100,6 +108,20 @@ const getCuriosityPhotos = () => {
     );
 };
 
+const getCuriosityManifest = () => {
+  fetch('http://localhost:3000/curiosity/manifest')
+    .then((res) => res.json())
+    .then((manifest) =>
+      updateStore(store, {
+        ...store,
+        manifests: {
+          ...store.manifests,
+          curiosity: manifest,
+        },
+      })
+    );
+};
+
 const getOpportunityPhotos = () => {
   fetch('http://localhost:3000/opportunity')
     .then((res) => res.json())
@@ -115,6 +137,20 @@ const getOpportunityPhotos = () => {
     );
 };
 
+const getOpportunityManifest = () => {
+  fetch('http://localhost:3000/opportunity/manifest')
+    .then((res) => res.json())
+    .then((manifest) =>
+      updateStore(store, {
+        ...store,
+        manifests: {
+          ...store.manifests,
+          opportunity: manifest,
+        },
+      })
+    );
+};
+
 const getSpiritPhotos = () => {
   fetch('http://localhost:3000/spirit')
     .then((res) => res.json())
@@ -125,6 +161,20 @@ const getSpiritPhotos = () => {
           ...store.rovers,
           selected: 'Spirit',
           spirit: spirit.photos.photos,
+        },
+      })
+    );
+};
+
+const getSpiritManifest = () => {
+  fetch('http://localhost:3000/spirit/manifest')
+    .then((res) => res.json())
+    .then((manifest) =>
+      updateStore(store, {
+        ...store,
+        manifests: {
+          ...store.manifests,
+          spirit: manifest,
         },
       })
     );

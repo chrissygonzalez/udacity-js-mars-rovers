@@ -46,4 +46,37 @@ app.get('/spirit', async (req, res) => {
   }
 });
 
+app.get('/curiosity/manifest', async (req, res) => {
+  try {
+    let manifest = await fetch(
+      `https://api.nasa.gov/mars-photos/api/v1/manifests/curiosity?api_key=${process.env.API_KEY}`
+    ).then((res) => res.json());
+    res.send({ manifest });
+  } catch (err) {
+    console.log('error:', err);
+  }
+});
+
+app.get('/opportunity/manifest', async (req, res) => {
+  try {
+    let manifest = await fetch(
+      `https://api.nasa.gov/mars-photos/api/v1/manifests/opportunity?api_key=${process.env.API_KEY}`
+    ).then((res) => res.json());
+    res.send({ manifest });
+  } catch (err) {
+    console.log('error:', err);
+  }
+});
+
+app.get('/spirit/manifest', async (req, res) => {
+  try {
+    let manifest = await fetch(
+      `https://api.nasa.gov/mars-photos/api/v1/manifests/spirit?api_key=${process.env.API_KEY}`
+    ).then((res) => res.json());
+    res.send({ manifest });
+  } catch (err) {
+    console.log('error:', err);
+  }
+});
+
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
