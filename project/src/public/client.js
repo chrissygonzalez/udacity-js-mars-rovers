@@ -7,9 +7,9 @@ let store = {
     spirit: {},
   },
   manifests: {
-    curiosity: {},
-    opportunity: {},
-    spirit: {},
+    curiosity: null,
+    opportunity: null,
+    spirit: null,
   },
 };
 
@@ -20,7 +20,7 @@ const updateStore = (store, newState) => {
   store = Object.assign(store, newState);
   render(root, store);
   initMenu();
-  debugger;
+  //   debugger;
 };
 
 const initMenu = () => {
@@ -49,21 +49,19 @@ const render = async (root, state) => {
 
 // create content
 const App = (state) => {
-  let { rovers } = state;
+  const { rovers, manifests } = state;
+  const currentRover = getCurrentRover(rovers, manifests);
 
   return `
         <header></header>
         <main>
             ${RoverSelect(rovers.roverNames)}
             <section>
-                <h1>${rovers.selected}</h1>
-                ${
-                  rovers.selected
-                    ? rovers[rovers.selected.toLowerCase()].map((photo) =>
-                        RoverImage(photo.img_src)
-                      )
-                    : ''
-                }
+                <h1>${currentRover.name}</h1>
+                <h3>Status: ${currentRover.status}</h3>
+                <h3>Launch date: ${currentRover.launch}</h3>
+                <h3>Landing date: ${currentRover.landing}</h3>
+                ${currentRover.photos.map((photo) => RoverImage(photo.img_src))}
             </section>
         </main>
         <footer></footer>
@@ -91,6 +89,32 @@ const RoverOption = (rover) => {
 
 const RoverImage = (url) => {
   return `<img src=${url} />`;
+};
+
+const getCurrentRover = (rovers, manifests) => {
+  if (rovers.selected && manifests[rovers.selected.toLowerCase()]) {
+    // debugger;
+    const current = rovers.selected;
+    const manifest = manifests[current.toLowerCase()].manifest.photo_manifest;
+    // debugger;
+    return {
+      name: current,
+      photos: rovers[current.toLowerCase()],
+      manifest,
+      launch: manifest.launch_date,
+      landing: manifest.landing_date,
+      status: manifest.status,
+    };
+  } else {
+    return {
+      name: '',
+      photos: [],
+      manifest: {},
+      launch: '',
+      landing: '',
+      status: '',
+    };
+  }
 };
 
 const getCuriosityPhotos = () => {
