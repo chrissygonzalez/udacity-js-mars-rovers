@@ -61,7 +61,16 @@ const App = (state) => {
                 <h3>Status: ${currentRover.status}</h3>
                 <h3>Launch date: ${currentRover.launch}</h3>
                 <h3>Landing date: ${currentRover.landing}</h3>
-                ${currentRover.photos.map((photo) => RoverImage(photo.img_src))}
+                <h3>Total photos taken: ${currentRover.totalPhotos}</h3>
+                <h3>Most recent photos taken: Earth date ${
+                  currentRover.maxDate
+                } | Martian sol ${currentRover.maxSol}</h3>
+                <div class="flex">
+                ${currentRover.photos.reduce(
+                  (acc, curr) => acc + RoverImage(curr.img_src),
+                  ''
+                )}
+                </div>
             </section>
         </main>
         <footer></footer>
@@ -88,8 +97,13 @@ const RoverOption = (rover) => {
 };
 
 const RoverImage = (url) => {
-  return `<img src=${url} />`;
+  //   debugger;
+  return `<div class="rover-image" style="background-image: url(${encodeURI(
+    url
+  )});"></div>`;
 };
+
+// HELPER FUNCTIONS -------------------
 
 const getCurrentRover = (rovers, manifests) => {
   if (rovers.selected && manifests[rovers.selected.toLowerCase()]) {
@@ -101,9 +115,12 @@ const getCurrentRover = (rovers, manifests) => {
       name: current,
       photos: rovers[current.toLowerCase()],
       manifest,
-      launch: manifest.launch_date,
-      landing: manifest.landing_date,
+      launch: getFormattedDate(manifest.launch_date),
+      landing: getFormattedDate(manifest.landing_date),
       status: manifest.status,
+      maxSol: manifest.max_sol,
+      maxDate: getFormattedDate(manifest.max_date),
+      totalPhotos: manifest.total_photos,
     };
   } else {
     return {
@@ -113,9 +130,18 @@ const getCurrentRover = (rovers, manifests) => {
       launch: '',
       landing: '',
       status: '',
+      maxSol: '',
+      maxDate: '',
+      totalPhotos: '',
     };
   }
 };
+
+const getFormattedDate = (date) => {
+  return new Date(date).toUTCString().split(' ').slice(0, 4).join(' ');
+};
+
+// API REQUESTS -----------------------
 
 const getCuriosityPhotos = () => {
   fetch('http://localhost:3000/curiosity')
