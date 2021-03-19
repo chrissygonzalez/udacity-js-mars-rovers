@@ -9,6 +9,7 @@ let store = Immutable.fromJS({
 const root = document.getElementById('root');
 
 const updateStore = (state, newState) => {
+  debugger;
   store = state.merge(newState);
   render(root, store);
   initMenu();
@@ -134,54 +135,31 @@ const getFormattedDate = (date) => {
 };
 
 // API REQUESTS -----------------------
-
-const getCuriosityPhotos = () => {
-  fetch('http://localhost:3000/curiosity')
-    .then((res) => res.json())
-    .then((curiosity) =>
-      updateStore(store, {
-        selectedRover: 'curiosity',
-        photos: curiosity.photos.photos,
-      })
-    );
+const getRoverPhotos = (rover) => {
+  return () => {
+    fetch(`http://localhost:3000/${rover}`)
+      .then((res) => res.json())
+      .then((data) =>
+        updateStore(store, {
+          selectedRover: rover,
+          photos: data.photos.photos,
+        })
+      );
+  };
 };
 
-const getCuriosityManifest = () => {
-  fetch('http://localhost:3000/curiosity/manifest')
-    .then((res) => res.json())
-    .then((manifest) => updateStore(store, { manifest }));
+const getRoverManifest = (rover) => {
+  return () => {
+    fetch(`http://localhost:3000/${rover}/manifest`)
+      .then((res) => res.json())
+      .then((manifest) => updateStore(store, { manifest }));
+  };
 };
 
-const getOpportunityPhotos = () => {
-  fetch('http://localhost:3000/opportunity')
-    .then((res) => res.json())
-    .then((opportunity) =>
-      updateStore(store, {
-        selectedRover: 'opportunity',
-        photos: opportunity.photos.photos,
-      })
-    );
-};
+const getCuriosityPhotos = getRoverPhotos('curiosity');
+const getOpportunityPhotos = getRoverPhotos('opportunity');
+const getSpiritPhotos = getRoverPhotos('spirit');
 
-const getOpportunityManifest = () => {
-  fetch('http://localhost:3000/opportunity/manifest')
-    .then((res) => res.json())
-    .then((manifest) => updateStore(store, { manifest }));
-};
-
-const getSpiritPhotos = () => {
-  fetch('http://localhost:3000/spirit')
-    .then((res) => res.json())
-    .then((spirit) =>
-      updateStore(store, {
-        selectedRover: 'spirit',
-        photos: spirit.photos.photos,
-      })
-    );
-};
-
-const getSpiritManifest = () => {
-  fetch('http://localhost:3000/spirit/manifest')
-    .then((res) => res.json())
-    .then((manifest) => updateStore(store, { manifest }));
-};
+const getCuriosityManifest = getRoverManifest('curiosity');
+const getOpportunityManifest = getRoverManifest('opportunity');
+const getSpiritManifest = getRoverManifest('spirit');
