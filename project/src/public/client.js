@@ -123,14 +123,7 @@ const getRoverData = (state) => {
     };
   } else {
     return {
-      name: '',
       photos: [],
-      launch: '',
-      landing: '',
-      status: '',
-      maxSol: '',
-      maxDate: '',
-      totalPhotos: '',
     };
   }
 };
@@ -139,6 +132,8 @@ const getFormattedDate = (date) => {
   return new Date(date).toUTCString().split(' ').slice(0, 4).join(' ');
 };
 
+// TODO: show something before you make a request
+// TODO: figure out how to include latest sol date
 // API REQUESTS -----------------------
 const getRoverPhotos = (rover) => {
   return () => {
