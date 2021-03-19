@@ -1,24 +1,15 @@
 let store = Immutable.fromJS({
-  rovers: {
-    roverNames: ['Curiosity', 'Opportunity', 'Spirit'],
-    selected: '',
-    curiosity: [],
-    opportunity: [],
-    spirit: [],
-  },
-  manifests: {
-    curiosity: null,
-    opportunity: null,
-    spirit: null,
-  },
+  roverNames: ['curiosity', 'opportunity', 'spirit'],
+  selectedRover: '',
+  photos: [],
+  manifest: {},
 });
 
 // add our markup to the page
 const root = document.getElementById('root');
 
-const updateStore = (store, newState) => {
-  store = store.mergeDeep(newState);
-  debugger;
+const updateStore = (state, newState) => {
+  store = state.merge(newState);
   render(root, store);
   initMenu();
 };
@@ -29,15 +20,15 @@ const initMenu = () => {
 };
 
 const menuActions = (e) => {
-  if (e.target.value === 'Curiosity') {
+  if (e.target.value === 'curiosity') {
     getCuriosityPhotos();
     getCuriosityManifest();
   }
-  if (e.target.value === 'Opportunity') {
+  if (e.target.value === 'opportunity') {
     getOpportunityPhotos();
     getOpportunityManifest();
   }
-  if (e.target.value === 'Spirit') {
+  if (e.target.value === 'spirit') {
     getSpiritPhotos();
     getSpiritManifest();
   }
@@ -49,21 +40,18 @@ const render = async (root, state) => {
 
 // create content
 const App = (state) => {
-  //   const { rovers, manifests } = state;
-  const rovers = state.get('rovers');
-  const manifests = state.get('manifests');
-  const currentRover = getCurrentRover(rovers, manifests);
-  debugger;
+  const rover = getRoverData(state);
+
   return `
         <header>
-            ${RoverSelect(rovers.get('roverNames'))}
+            ${RoverSelect(state.get('roverNames'))}
         </header>
         <main>
             <section class="rover-details">
-                ${RoverDetails(currentRover)}
+                ${RoverDetails(rover)}
             </section>
             <section class="flex rover-photos">
-                ${currentRover.photos.reduce(
+                ${rover.photos.reduce(
                   (acc, curr) => acc + RoverImage(curr.img_src),
                   ''
                 )}
@@ -85,10 +73,10 @@ const RoverSelect = (roverNames) => {
 };
 
 const RoverOption = (rover) => {
-  const isSelected = rover === store.getIn(['rovers', 'selected']);
+  const isSelected = rover === store.get('selectedRover');
   return `<option ${
     isSelected ? 'selected' : ''
-  } value=${rover}>${rover}</option>`;
+  } value=${rover}>${rover.toUpperCase()}</option>`;
 };
 
 const RoverDetails = (rover) => {
@@ -108,17 +96,18 @@ const RoverImage = (url) => {
 
 // HELPER FUNCTIONS -------------------
 
-const getCurrentRover = (roversMap, manifestsMap) => {
-  debugger;
-  const rovers = roversMap.toJS();
-  const manifests = manifestsMap.toJS();
-  if (rovers.selected && manifests[rovers.selected.toLowerCase()]) {
-    const current = rovers.selected;
-    const manifest = manifests[current.toLowerCase()].manifest.photo_manifest;
+const getRoverData = (state) => {
+  const selected = state.get('selectedRover');
+  const hasManifest = state.hasIn(['manifest', 'manifest', 'photo_manifest']);
+
+  if (selected && hasManifest) {
+    const manifest = state
+      .getIn(['manifest', 'manifest', 'photo_manifest'])
+      .toJS();
+
     return {
-      name: current,
-      photos: rovers[current.toLowerCase()],
-      manifest,
+      name: selected,
+      photos: state.get('photos').toJS(),
       launch: getFormattedDate(manifest.launch_date),
       landing: getFormattedDate(manifest.landing_date),
       status: manifest.status,
@@ -130,7 +119,6 @@ const getCurrentRover = (roversMap, manifestsMap) => {
     return {
       name: '',
       photos: [],
-      manifest: {},
       launch: '',
       landing: '',
       status: '',
@@ -152,10 +140,8 @@ const getCuriosityPhotos = () => {
     .then((res) => res.json())
     .then((curiosity) =>
       updateStore(store, {
-        rovers: {
-          selected: 'Curiosity',
-          curiosity: curiosity.photos.photos,
-        },
+        selectedRover: 'curiosity',
+        photos: curiosity.photos.photos,
       })
     );
 };
@@ -163,13 +149,7 @@ const getCuriosityPhotos = () => {
 const getCuriosityManifest = () => {
   fetch('http://localhost:3000/curiosity/manifest')
     .then((res) => res.json())
-    .then((manifest) =>
-      updateStore(store, {
-        manifests: {
-          curiosity: manifest,
-        },
-      })
-    );
+    .then((manifest) => updateStore(store, { manifest }));
 };
 
 const getOpportunityPhotos = () => {
@@ -177,12 +157,8 @@ const getOpportunityPhotos = () => {
     .then((res) => res.json())
     .then((opportunity) =>
       updateStore(store, {
-        ...store,
-        rovers: {
-          ...store.rovers,
-          selected: 'Opportunity',
-          opportunity: opportunity.photos.photos,
-        },
+        selectedRover: 'opportunity',
+        photos: opportunity.photos.photos,
       })
     );
 };
@@ -190,15 +166,7 @@ const getOpportunityPhotos = () => {
 const getOpportunityManifest = () => {
   fetch('http://localhost:3000/opportunity/manifest')
     .then((res) => res.json())
-    .then((manifest) =>
-      updateStore(store, {
-        ...store,
-        manifests: {
-          ...store.manifests,
-          opportunity: manifest,
-        },
-      })
-    );
+    .then((manifest) => updateStore(store, { manifest }));
 };
 
 const getSpiritPhotos = () => {
@@ -206,12 +174,8 @@ const getSpiritPhotos = () => {
     .then((res) => res.json())
     .then((spirit) =>
       updateStore(store, {
-        ...store,
-        rovers: {
-          ...store.rovers,
-          selected: 'Spirit',
-          spirit: spirit.photos.photos,
-        },
+        selectedRover: 'spirit',
+        photos: spirit.photos.photos,
       })
     );
 };
@@ -219,13 +183,5 @@ const getSpiritPhotos = () => {
 const getSpiritManifest = () => {
   fetch('http://localhost:3000/spirit/manifest')
     .then((res) => res.json())
-    .then((manifest) =>
-      updateStore(store, {
-        ...store,
-        manifests: {
-          ...store.manifests,
-          spirit: manifest,
-        },
-      })
-    );
+    .then((manifest) => updateStore(store, { manifest }));
 };
