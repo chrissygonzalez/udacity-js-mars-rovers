@@ -9,7 +9,6 @@ let store = Immutable.fromJS({
 const root = document.getElementById('root');
 
 const updateStore = (state, newState) => {
-  debugger;
   store = state.merge(newState);
   render(root, store);
   initMenu();
@@ -17,21 +16,27 @@ const updateStore = (state, newState) => {
 
 const initMenu = () => {
   const roverMenu = document.getElementById('RoverSelect');
-  roverMenu.onchange = (e) => menuActions(e);
+  roverMenu.onchange = (e) => {
+    updateStore(store, {
+      photos: [],
+      manifest: {},
+    });
+    menuActions(e);
+  };
 };
 
 const menuActions = (e) => {
   if (e.target.value === 'curiosity') {
-    getCuriosityPhotos();
-    getCuriosityManifest();
+    getRoverPhotos('curiosity')();
+    getRoverManifest('curiosity')();
   }
   if (e.target.value === 'opportunity') {
-    getOpportunityPhotos();
-    getOpportunityManifest();
+    getRoverPhotos('opportunity')();
+    getRoverManifest('opportunity')();
   }
   if (e.target.value === 'spirit') {
-    getSpiritPhotos();
-    getSpiritManifest();
+    getRoverPhotos('spirit')();
+    getRoverManifest('spirit')();
   }
 };
 
@@ -155,11 +160,3 @@ const getRoverManifest = (rover) => {
       .then((manifest) => updateStore(store, { manifest }));
   };
 };
-
-const getCuriosityPhotos = getRoverPhotos('curiosity');
-const getOpportunityPhotos = getRoverPhotos('opportunity');
-const getSpiritPhotos = getRoverPhotos('spirit');
-
-const getCuriosityManifest = getRoverManifest('curiosity');
-const getOpportunityManifest = getRoverManifest('opportunity');
-const getSpiritManifest = getRoverManifest('spirit');
