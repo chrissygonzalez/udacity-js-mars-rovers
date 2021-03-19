@@ -53,27 +53,20 @@ const App = (state) => {
   const currentRover = getCurrentRover(rovers, manifests);
 
   return `
-        <header></header>
-        <main>
+        <header>
             ${RoverSelect(rovers.roverNames)}
-            <section>
-                <h1>${currentRover.name}</h1>
-                <h3>Status: ${currentRover.status}</h3>
-                <h3>Launch date: ${currentRover.launch}</h3>
-                <h3>Landing date: ${currentRover.landing}</h3>
-                <h3>Total photos taken: ${currentRover.totalPhotos}</h3>
-                <h3>Most recent photos taken: Earth date ${
-                  currentRover.maxDate
-                } | Martian sol ${currentRover.maxSol}</h3>
-                <div class="flex">
+        </header>
+        <main>
+            <section class="rover-details">
+                ${RoverDetails(currentRover)}
+            </section>
+            <section class="flex rover-photos">
                 ${currentRover.photos.reduce(
                   (acc, curr) => acc + RoverImage(curr.img_src),
                   ''
                 )}
-                </div>
             </section>
         </main>
-        <footer></footer>
     `;
 };
 
@@ -96,21 +89,27 @@ const RoverOption = (rover) => {
   } value=${rover}>${rover}</option>`;
 };
 
+const RoverDetails = (rover) => {
+  if (rover.name) {
+    return `<p><span class="label">Status</span>: ${rover.status}</p>
+        <p><span class="label">Launch date:</span> ${rover.launch}</p>
+        <p><span class="label">Landing date:</span> ${rover.landing}</p>
+        <p><span class="label">Total photos taken:</span> ${rover.totalPhotos}</p>
+        <p><span class="label">Most recent photos taken:</span> ${rover.maxDate} / Martian sol ${rover.maxSol}</p>`;
+  }
+  return '';
+};
+
 const RoverImage = (url) => {
-  //   debugger;
-  return `<div class="rover-image" style="background-image: url(${encodeURI(
-    url
-  )});"></div>`;
+  return `<img class="rover-image" src=${url} alt="photo of Mars" />`;
 };
 
 // HELPER FUNCTIONS -------------------
 
 const getCurrentRover = (rovers, manifests) => {
   if (rovers.selected && manifests[rovers.selected.toLowerCase()]) {
-    // debugger;
     const current = rovers.selected;
     const manifest = manifests[current.toLowerCase()].manifest.photo_manifest;
-    // debugger;
     return {
       name: current,
       photos: rovers[current.toLowerCase()],
