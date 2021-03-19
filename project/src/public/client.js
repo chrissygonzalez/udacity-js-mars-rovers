@@ -1,26 +1,26 @@
-let store = {
+let store = Immutable.fromJS({
   rovers: {
     roverNames: ['Curiosity', 'Opportunity', 'Spirit'],
     selected: '',
-    curiosity: {},
-    opportunity: {},
-    spirit: {},
+    curiosity: [],
+    opportunity: [],
+    spirit: [],
   },
   manifests: {
     curiosity: null,
     opportunity: null,
     spirit: null,
   },
-};
+});
 
 // add our markup to the page
 const root = document.getElementById('root');
 
 const updateStore = (store, newState) => {
-  store = Object.assign(store, newState);
+  store = store.mergeDeep(newState);
+  debugger;
   render(root, store);
   initMenu();
-  //   debugger;
 };
 
 const initMenu = () => {
@@ -49,12 +49,14 @@ const render = async (root, state) => {
 
 // create content
 const App = (state) => {
-  const { rovers, manifests } = state;
+  //   const { rovers, manifests } = state;
+  const rovers = state.get('rovers');
+  const manifests = state.get('manifests');
   const currentRover = getCurrentRover(rovers, manifests);
-
+  debugger;
   return `
         <header>
-            ${RoverSelect(rovers.roverNames)}
+            ${RoverSelect(rovers.get('roverNames'))}
         </header>
         <main>
             <section class="rover-details">
@@ -83,7 +85,7 @@ const RoverSelect = (roverNames) => {
 };
 
 const RoverOption = (rover) => {
-  const isSelected = rover === store.rovers.selected;
+  const isSelected = rover === store.getIn(['rovers', 'selected']);
   return `<option ${
     isSelected ? 'selected' : ''
   } value=${rover}>${rover}</option>`;
@@ -106,7 +108,10 @@ const RoverImage = (url) => {
 
 // HELPER FUNCTIONS -------------------
 
-const getCurrentRover = (rovers, manifests) => {
+const getCurrentRover = (roversMap, manifestsMap) => {
+  debugger;
+  const rovers = roversMap.toJS();
+  const manifests = manifestsMap.toJS();
   if (rovers.selected && manifests[rovers.selected.toLowerCase()]) {
     const current = rovers.selected;
     const manifest = manifests[current.toLowerCase()].manifest.photo_manifest;
@@ -147,9 +152,7 @@ const getCuriosityPhotos = () => {
     .then((res) => res.json())
     .then((curiosity) =>
       updateStore(store, {
-        ...store,
         rovers: {
-          ...store.rovers,
           selected: 'Curiosity',
           curiosity: curiosity.photos.photos,
         },
@@ -162,9 +165,7 @@ const getCuriosityManifest = () => {
     .then((res) => res.json())
     .then((manifest) =>
       updateStore(store, {
-        ...store,
         manifests: {
-          ...store.manifests,
           curiosity: manifest,
         },
       })
