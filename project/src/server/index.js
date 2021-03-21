@@ -13,43 +13,12 @@ app.use(bodyParser.json());
 app.use('/', express.static(path.join(__dirname, '../public')));
 
 // your API calls
-app.get('/curiosity', async (req, res) => {
-  try {
-    let photos = await fetch(
-      `https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?sol=3060&page=1&api_key=${process.env.API_KEY}`
-    ).then((res) => res.json());
-    res.send({ photos });
-  } catch (err) {
-    console.log('error:', err);
-  }
-});
 
-app.get('/opportunity', async (req, res) => {
-  try {
-    let photos = await fetch(
-      `https://api.nasa.gov/mars-photos/api/v1/rovers/opportunity/photos?sol=1000&api_key=${process.env.API_KEY}`
-    ).then((res) => res.json());
-    res.send({ photos });
-  } catch (err) {
-    console.log('error:', err);
-  }
-});
-
-app.get('/spirit', async (req, res) => {
-  try {
-    let photos = await fetch(
-      `https://api.nasa.gov/mars-photos/api/v1/rovers/spirit/photos?sol=1000&api_key=${process.env.API_KEY}`
-    ).then((res) => res.json());
-    res.send({ photos });
-  } catch (err) {
-    console.log('error:', err);
-  }
-});
-
-app.get('/curiosity/manifest', async (req, res) => {
+app.get('/manifest/:rover', async (req, res) => {
+  const rover = req.params.rover;
   try {
     let manifest = await fetch(
-      `https://api.nasa.gov/mars-photos/api/v1/manifests/curiosity?api_key=${process.env.API_KEY}`
+      `https://api.nasa.gov/mars-photos/api/v1/manifests/${rover}?api_key=${process.env.API_KEY}`
     ).then((res) => res.json());
     res.send({ manifest });
   } catch (err) {
@@ -57,23 +26,15 @@ app.get('/curiosity/manifest', async (req, res) => {
   }
 });
 
-app.get('/opportunity/manifest', async (req, res) => {
+app.get('/photos/:rover/:max_sol', async (req, res) => {
+  const rover = req.params.rover;
+  const maxSol = req.params.max_sol;
+  console.log(rover, maxSol);
   try {
-    let manifest = await fetch(
-      `https://api.nasa.gov/mars-photos/api/v1/manifests/opportunity?api_key=${process.env.API_KEY}`
+    let photos = await fetch(
+      `https://api.nasa.gov/mars-photos/api/v1/rovers/${rover}/photos?sol=${maxSol}&page=1&api_key=${process.env.API_KEY}`
     ).then((res) => res.json());
-    res.send({ manifest });
-  } catch (err) {
-    console.log('error:', err);
-  }
-});
-
-app.get('/spirit/manifest', async (req, res) => {
-  try {
-    let manifest = await fetch(
-      `https://api.nasa.gov/mars-photos/api/v1/manifests/spirit?api_key=${process.env.API_KEY}`
-    ).then((res) => res.json());
-    res.send({ manifest });
+    res.send({ photos });
   } catch (err) {
     console.log('error:', err);
   }

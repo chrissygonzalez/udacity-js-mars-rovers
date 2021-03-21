@@ -9,6 +9,7 @@ let store = Immutable.fromJS({
 const root = document.getElementById('root');
 
 const updateStore = (state, newState) => {
+  debugger;
   store = state.merge(newState);
   render(root, store);
   initMenu();
@@ -27,16 +28,13 @@ const initMenu = () => {
 
 const menuActions = (e) => {
   if (e.target.value === 'curiosity') {
-    getRoverPhotos('curiosity')();
-    getRoverManifest('curiosity')();
+    getRoverData('curiosity')();
   }
   if (e.target.value === 'opportunity') {
-    getRoverPhotos('opportunity')();
-    getRoverManifest('opportunity')();
+    getRoverData('opportunity')();
   }
   if (e.target.value === 'spirit') {
-    getRoverPhotos('spirit')();
-    getRoverManifest('spirit')();
+    getRoverData('spirit')();
   }
 };
 
@@ -133,25 +131,23 @@ const getFormattedDate = (date) => {
 };
 
 // TODO: show something before you make a request
-// TODO: figure out how to include latest sol date
 // API REQUESTS -----------------------
-const getRoverPhotos = (rover) => {
+
+const getRoverData = (rover) => {
   return () => {
-    fetch(`http://localhost:3000/${rover}`)
+    fetch(`http://localhost:3000/manifest/${rover}`)
       .then((res) => res.json())
-      .then((data) =>
+      .then((manifest) => {
+        updateStore(store, { manifest });
+        const maxSol = manifest.manifest.photo_manifest.max_sol;
+        return fetch(`http://localhost:3000/photos/${rover}/${maxSol}`);
+      })
+      .then((res) => res.json())
+      .then((data) => {
         updateStore(store, {
           selectedRover: rover,
           photos: data.photos.photos,
-        })
-      );
-  };
-};
-
-const getRoverManifest = (rover) => {
-  return () => {
-    fetch(`http://localhost:3000/${rover}/manifest`)
-      .then((res) => res.json())
-      .then((manifest) => updateStore(store, { manifest }));
+        });
+      });
   };
 };
