@@ -29,7 +29,6 @@ app.get('/manifest/:rover', async (req, res) => {
 app.get('/photos/:rover/:max_sol', async (req, res) => {
   const rover = req.params.rover;
   const maxSol = req.params.max_sol;
-  console.log(rover, maxSol);
   try {
     let photos = await fetch(
       `https://api.nasa.gov/mars-photos/api/v1/rovers/${rover}/photos?sol=${maxSol}&page=1&api_key=${process.env.API_KEY}`

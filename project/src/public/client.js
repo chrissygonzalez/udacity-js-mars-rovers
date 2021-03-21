@@ -9,7 +9,7 @@ let store = Immutable.fromJS({
 const root = document.getElementById('root');
 
 const updateStore = (state, newState) => {
-  debugger;
+  // debugger;
   store = state.merge(newState);
   render(root, store);
   initMenu();
@@ -19,6 +19,7 @@ const initMenu = () => {
   const roverMenu = document.getElementById('RoverSelect');
   roverMenu.onchange = (e) => {
     updateStore(store, {
+      selectedRover: e.target.value,
       photos: [],
       manifest: {},
     });
@@ -28,13 +29,13 @@ const initMenu = () => {
 
 const menuActions = (e) => {
   if (e.target.value === 'curiosity') {
-    getRoverData('curiosity')();
+    getRoverManifestAndPhotos('curiosity')();
   }
   if (e.target.value === 'opportunity') {
-    getRoverData('opportunity')();
+    getRoverManifestAndPhotos('opportunity')();
   }
   if (e.target.value === 'spirit') {
-    getRoverData('spirit')();
+    getRoverManifestAndPhotos('spirit')();
   }
 };
 
@@ -85,11 +86,13 @@ const RoverOption = (rover) => {
 
 const RoverDetails = (rover) => {
   if (rover.name) {
-    return `<p><span class="label">Status</span>: ${rover.status}</p>
+    const statusStyle = rover.status === 'active' ? 'active' : 'completed';
+    return `<p><span class="label">Status</span>: <span class=${statusStyle}>${rover.status}</span></p>
         <p><span class="label">Launch date:</span> ${rover.launch}</p>
         <p><span class="label">Landing date:</span> ${rover.landing}</p>
         <p><span class="label">Total photos taken:</span> ${rover.totalPhotos}</p>
-        <p><span class="label">Most recent photos taken:</span> ${rover.maxDate} / Martian sol ${rover.maxSol}</p>`;
+        <p><span class="label">Most recent photos taken:</span> ${rover.maxDate} / Martian sol ${rover.maxSol}</p>
+        <h3>Photos taken on Martian sol ${rover.maxSol}</h3>`;
   }
   return '';
 };
@@ -133,7 +136,7 @@ const getFormattedDate = (date) => {
 // TODO: show something before you make a request
 // API REQUESTS -----------------------
 
-const getRoverData = (rover) => {
+const getRoverManifestAndPhotos = (rover) => {
   return () => {
     fetch(`http://localhost:3000/manifest/${rover}`)
       .then((res) => res.json())

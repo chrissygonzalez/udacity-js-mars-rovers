@@ -11,7 +11,9 @@ body {
   flex: 1;
 }
 
-main {
+h3 {
+  margin-top: 40px;
+  font-weight: 600;
 }
 
 p {
@@ -48,8 +50,28 @@ select:focus {
 }
 
 .rover-image {
-  padding: 20px;
+  padding: 10px;
   width: 100%;
+}
+
+.active {
+  background-color: #008000;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05rem;
+  border-radius: 3px;
+  padding: 1px 5px;
+  margin-left: 5px;
+}
+
+.completed {
+  background-color: #666;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05rem;
+  border-radius: 3px;
+  padding: 1px 5px;
+  margin-left: 5px;
 }
 
 .label {
