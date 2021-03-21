@@ -1,4 +1,5 @@
 let store = Immutable.fromJS({
+  showDefault: true,
   roverNames: ['curiosity', 'opportunity', 'spirit'],
   selectedRover: '',
   photos: [],
@@ -9,32 +10,28 @@ let store = Immutable.fromJS({
 const root = document.getElementById('root');
 
 const updateStore = (state, newState) => {
-  // debugger;
   store = state.merge(newState);
   render(root, store);
-  initMenu();
 };
 
-const initMenu = () => {
-  const roverMenu = document.getElementById('RoverSelect');
-  roverMenu.onchange = (e) => {
-    updateStore(store, {
-      selectedRover: e.target.value,
-      photos: [],
-      manifest: {},
-    });
-    menuActions(e);
-  };
+const handleChange = (e) => {
+  updateStore(store, {
+    showDefault: false,
+    selectedRover: e.value,
+    photos: [],
+    manifest: {},
+  });
+  menuActions(e);
 };
 
 const menuActions = (e) => {
-  if (e.target.value === 'curiosity') {
+  if (e.value === 'curiosity') {
     getRoverManifestAndPhotos('curiosity')();
   }
-  if (e.target.value === 'opportunity') {
+  if (e.value === 'opportunity') {
     getRoverManifestAndPhotos('opportunity')();
   }
-  if (e.target.value === 'spirit') {
+  if (e.value === 'spirit') {
     getRoverManifestAndPhotos('spirit')();
   }
 };
@@ -46,12 +43,14 @@ const render = async (root, state) => {
 // create content
 const App = (state) => {
   const rover = getRoverData(state);
+  const showDefault = state.get('showDefault');
 
   return `
         <header>
             ${RoverSelect(state.get('roverNames'))}
         </header>
         <main>
+            ${DefaultText(showDefault)}
             <section class="rover-details">
                 ${RoverDetails(rover)}
             </section>
@@ -68,11 +67,12 @@ const App = (state) => {
 // listening for load event because page should load before any JS is called
 window.addEventListener('load', () => {
   render(root, store);
-  initMenu();
 });
 
+// COMPONENTS -------------------
+
 const RoverSelect = (roverNames) => {
-  return `<select id="RoverSelect"><option value="">Choose a rover</option>${roverNames.map(
+  return `<select id="RoverSelect" onchange="handleChange(this)"><option value="">Choose a rover</option>${roverNames.map(
     (rover) => RoverOption(rover)
   )}</select>`;
 };
@@ -99,6 +99,23 @@ const RoverDetails = (rover) => {
 
 const RoverImage = (url) => {
   return `<img class="rover-image" src=${url} alt="photo of Mars" />`;
+};
+
+const DefaultText = (showDefault) => {
+  if (showDefault) {
+    return `<ol><h3>The scientific objectives of the Mars Exploration Rover mission are to:</h3>
+    <li>Search for and characterize a variety of rocks and soils that hold clues to past water activity. In particular, samples sought will include those that have minerals deposited by water-related processes such as precipitation, evaporation, sedimentary cementation, or hydrothermal activity.</li>
+    <li>Determine the distribution and composition of minerals, rocks, and soils surrounding the landing sites.</li>
+    <li>Determine what geologic processes have shaped the local terrain and influenced the chemistry. Such processes could include water or wind erosion, sedimentation, hydrothermal mechanisms, volcanism, and cratering.</li>
+    <li>Perform "ground truth" -- calibration and validation -- of surface observations made by Mars orbiter instruments. This will help determine the accuracy and effectiveness of various instruments that survey Martian geology from orbit.</li>
+    <li>Search for iron-containing minerals, identify and quantify relative amounts of specific mineral types that contain water or were formed in water, such as iron-bearing carbonates.</li>
+    <li>Characterize the mineralogy and textures of rocks and soils and determine the processes that created them.</li>
+    <li>Search for geological clues to the environmental conditions that existed when liquid water was present. Assess whether those environments were conducive to life.</li>
+    <p class="caption">From <a href="https://mars.nasa.gov/mer/mission/science/objectives/" target="_blank" rel="noopener noreferrer">Mars Exploration Rover Mission Science Objectives</a></p>
+    </ol>`;
+  } else {
+    return '';
+  }
 };
 
 // HELPER FUNCTIONS -------------------
@@ -133,7 +150,6 @@ const getFormattedDate = (date) => {
   return new Date(date).toUTCString().split(' ').slice(0, 4).join(' ');
 };
 
-// TODO: show something before you make a request
 // API REQUESTS -----------------------
 
 const getRoverManifestAndPhotos = (rover) => {

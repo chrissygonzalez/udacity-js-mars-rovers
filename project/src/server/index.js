@@ -13,7 +13,6 @@ app.use(bodyParser.json());
 app.use('/', express.static(path.join(__dirname, '../public')));
 
 // your API calls
-
 app.get('/manifest/:rover', async (req, res) => {
   const rover = req.params.rover;
   try {
