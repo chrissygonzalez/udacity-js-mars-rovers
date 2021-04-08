@@ -24,18 +24,8 @@ const handleChange = (e) => {
   menuActions(e)()();
 };
 
+// Higher-order function # 1: returns a function
 const menuActions = (e) => () => getRoverManifestAndPhotos(e.value);
-// const menuActions = (e) => {
-//   if (e.value === 'curiosity') {
-//     getRoverManifestAndPhotos('curiosity')();
-//   }
-//   if (e.value === 'opportunity') {
-//     getRoverManifestAndPhotos('opportunity')();
-//   }
-//   if (e.value === 'spirit') {
-//     getRoverManifestAndPhotos('spirit')();
-//   }
-// };
 
 const render = async (root, state) => {
   root.innerHTML = App(state);
@@ -152,7 +142,7 @@ const getFormattedDate = (date) => {
 };
 
 // API REQUESTS -----------------------
-
+// Higher-order function #2: returns a function
 const getRoverManifestAndPhotos = (rover) => {
   return () => {
     fetch(`http://localhost:3000/manifest/${rover}`)
