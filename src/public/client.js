@@ -21,20 +21,21 @@ const handleChange = (e) => {
     photos: [],
     manifest: {},
   });
-  menuActions(e);
+  menuActions(e)()();
 };
 
-const menuActions = (e) => {
-  if (e.value === 'curiosity') {
-    getRoverManifestAndPhotos('curiosity')();
-  }
-  if (e.value === 'opportunity') {
-    getRoverManifestAndPhotos('opportunity')();
-  }
-  if (e.value === 'spirit') {
-    getRoverManifestAndPhotos('spirit')();
-  }
-};
+const menuActions = (e) => () => getRoverManifestAndPhotos(e.value);
+// const menuActions = (e) => {
+//   if (e.value === 'curiosity') {
+//     getRoverManifestAndPhotos('curiosity')();
+//   }
+//   if (e.value === 'opportunity') {
+//     getRoverManifestAndPhotos('opportunity')();
+//   }
+//   if (e.value === 'spirit') {
+//     getRoverManifestAndPhotos('spirit')();
+//   }
+// };
 
 const render = async (root, state) => {
   root.innerHTML = App(state);
